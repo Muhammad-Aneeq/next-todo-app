@@ -4,9 +4,9 @@ import React, { useState } from "react";
 import Image from "next/image";
 import { MdKeyboardArrowDown } from "react-icons/md";
 import Checkbox from "@mui/material/Checkbox";
+import { useRouter } from "next/navigation";
 
 const TodoContainer = (tododata: any) => {
-  // console.log("tododata>>>", tododata);
   const { data, title } = tododata.tododata;
 
   const [isOpen, setIsOpen] = useState<Boolean>(false);
@@ -27,30 +27,41 @@ const TodoContainer = (tododata: any) => {
     category: "",
   });
 
+  const router = useRouter();
+
   const handleCategory = (title: string) => {
     console.log("title>>>", title);
     setIsOpen(!isOpen);
     setTodo({ ...todo, category: title });
   };
   const handleSubmit = async () => {
-    console.log("todo>>>", todo);
     try {
-      const res = await fetch("http://127.0.0.1:3000/api/todos", {
+      await fetch("http://127.0.0.1:3000/api/todos", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(todo),
       });
-      const json = await res.json();
-      if (json) {
-        console.log("res>>>", json);
-        reset();
-      }
+      router.refresh();
+      reset();
     } catch (error) {}
   };
 
-  const handleUpdate = () => {};
+  const handleUpdate = async (id: string, isCompleted: any) => {
+    console.log("isCmpleted>>>", isCompleted);
+    try {
+      await fetch(`http://127.0.0.1:3000/api/todos`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ id, isCompleted }),
+      });
+      // router.refresh();
+      reset();
+    } catch (error) {}
+  };
 
   const reset = () => {
     console.log("its working");
@@ -98,9 +109,11 @@ const TodoContainer = (tododata: any) => {
                         <div>
                           {/* <input type="checkbox" /> */}
                           <Checkbox
-                            onChange={() => setChecked(!checked)}
+                            onChange={(e) =>
+                              handleUpdate(task._id, e.target.checked)
+                            }
                             color="default"
-                            checked={task.completed || checked}
+                            checked={task.completed}
                           />
                         </div>
                         <div
@@ -112,9 +125,7 @@ const TodoContainer = (tododata: any) => {
                             //   task.completed === true || checked === true
                             // }? line-through : none `}
                             className={
-                              task.completed === true || checked === true
-                                ? "line-through"
-                                : "none"
+                              task.completed === true ? "line-through" : "none"
                             }
                           >
                             {task.task}
@@ -123,12 +134,12 @@ const TodoContainer = (tododata: any) => {
                       </div>
 
                       <div>
-                        <button
+                        {/* <button
                           className="font-semibold"
-                          onClick={handleUpdate}
+                          // onClick={handleUpdate}
                         >
                           Edit
-                        </button>
+                        </button> */}
                       </div>
                     </section>
                     {isSubTask && (

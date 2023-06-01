@@ -4,7 +4,7 @@ import { NextResponse } from "next/server";
 
 export async function POST(request: Request) {
   const data: TodoType = await request.json();
-
+  console.log("data>>>", data);
   if (request.method !== "POST") {
     return NextResponse.json({ message: "Only POST are allowed." });
   }
