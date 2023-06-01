@@ -32,22 +32,28 @@ const TodoContainer = (tododata: any) => {
     setIsOpen(!isOpen);
     setTodo({ ...todo, category: title });
   };
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     console.log("todo>>>", todo);
-
-    fetch("http://localhost:3000/api/todos", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(todo),
-    });
-    reset();
+    try {
+      const res = await fetch("http://127.0.0.1:3000/api/todos", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(todo),
+      });
+      const json = await res.json();
+      if (json) {
+        console.log("res>>>", json);
+        reset();
+      }
+    } catch (error) {}
   };
 
   const handleUpdate = () => {};
 
   const reset = () => {
+    console.log("its working");
     setTodo({
       task: "",
       subtask: [
@@ -61,6 +67,7 @@ const TodoContainer = (tododata: any) => {
       category: "",
     });
   };
+  console.log("todo", todo);
   return (
     <div className="py-6">
       <section className="flex justify-between items-center">
